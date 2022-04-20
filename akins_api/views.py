@@ -68,6 +68,12 @@ def drone_detail(request, pk, format=None):
     """
     Retrieve, update or delete a drone
     """
+    # Defining standard context error message
+    context = {
+        'error': '401',
+        'message': 'UNAUTHORIZED USER',
+    }
+
     try:
         drone = Drone.objects.get(pk=pk)
     except Drone.DoesNotExist:
@@ -79,11 +85,16 @@ def drone_detail(request, pk, format=None):
 
     elif request.method == 'PUT':
         serializer = DroneSerializer(drone, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid() and request.user.profile.is_user_support:
             serializer.save()
             return Response(serializer.data)
+        elif not request.user.profile.is_user_support:
+            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        drone.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user.profile.is_user_support:
+            drone.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
