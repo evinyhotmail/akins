@@ -1,0 +1,6 @@
+# Byte-compiled / optimized / DLL files
+*.env
+*.vscode
+#staticfiles/
+#mediafiles/
+#migrations/
