@@ -1,6 +1,8 @@
 # Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
 *.env
 *.vscode
-#staticfiles/
-#mediafiles/
-#migrations/
+# staticfiles/
+# mediafiles/
+# migrations/
