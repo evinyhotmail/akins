@@ -1,19 +1,22 @@
-from rest_framework.views import APIView
+from akins_api.filter import DynamicSearchFilter
+from rest_framework import filters, generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.decorators import (
-    api_view, authentication_classes, permission_classes)
+    api_view,
+    authentication_classes,
+    permission_classes
+)
 from rest_framework.response import Response
-
-from django.shortcuts import render
-
 
 from .serlializers import (DroneSerializer)
 from .models import *
 # Create your views here.
 
 
+# FIXME: add all api url in order to provide a good lecture for the user
+# Show a veri nice overview of how to use the api
 @api_view(['GET'])
 def ApiOverview(request):
     api_urls = {
@@ -98,3 +101,10 @@ def drone_detail(request, pk, format=None):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class search_view(generics.ListCreateAPIView):
+    search_fields = ['brand']
+    filter_backends = (DynamicSearchFilter,)
+    queryset = Drone.objects.all()
+    serializer_class = DroneSerializer

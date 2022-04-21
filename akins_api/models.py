@@ -14,8 +14,6 @@ from django.db import models
 #  I just extended the Base Django user to add is_user_support field
 # in order control if the user is type support or base
 # TODO: in the future is better to create a model with type of user or simple use Django standard groups.
-
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_user_support = models.BooleanField(default=False)

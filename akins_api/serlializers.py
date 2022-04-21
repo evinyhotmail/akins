@@ -1,3 +1,4 @@
+from dataclasses import fields
 from rest_framework import serializers
 from .models import *
 
@@ -5,12 +6,4 @@ from .models import *
 class DroneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Drone
-        fields = (
-            'id',
-            'name',
-            'serial_number',
-            'brand',
-            'cameras',
-            'created_at',
-            'update_at'
-        )
+        fields = '__all__'

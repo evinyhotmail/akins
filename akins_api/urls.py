@@ -9,6 +9,7 @@ urlpatterns = [
     path('drone/all', views.drone_list, name='drone_list'),
     path('drone/add', views.drone_add, name='drone_add'),
     path('drone/<int:pk>', views.drone_detail, name='drone_detail'),
+    path('drone/', views.search_view.as_view(), name='drone_search'),
 
 
 
