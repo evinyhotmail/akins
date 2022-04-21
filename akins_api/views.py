@@ -1,4 +1,4 @@
-from akins_api.filter import DynamicSearchFilter
+from akins_api.filter import (DynamicDroneFilter, DynamicCameraFilter)
 from rest_framework import filters, generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -10,36 +10,40 @@ from rest_framework.decorators import (
 )
 from rest_framework.response import Response
 
-from .serlializers import (DroneSerializer)
+from .serlializers import (DroneSerializer, CameraSerializer)
 from .models import *
+from akins_api import serlializers
 # Create your views here.
 
 
-# FIXME: add all api url in order to provide a good lecture for the user
 # Show a veri nice overview of how to use the api
 @api_view(['GET'])
 def ApiOverview(request):
     api_urls = {
-        'all drone items': '/',
-        'Search by Category': '/?category=category_name',
-        'Search by Subcategory': '/?subcategory=category_name',
-        'Add': '/create',
-        'Update': '/update/pk',
-        'Delete': '/item/pk/delete'
+        'All drones & search by fields': '/drone',
+        'Add, Update & Dele': '/drone/pk',
+
+        'All Camera & search by fields': '/camera',
+
+
+
+        'JSON Web Token ': '/token',
+        'JSON Web Token Refresh': '/token/refresh'
     }
 
     return Response(api_urls)
 
 
-# List all drones into the DB
-@api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([IsAuthenticated])
-def drone_list(request,  format=None):
-    if request.method == 'GET':
-        snippets = Drone.objects.all()
-        serializer = DroneSerializer(snippets, many=True)
-        return Response(serializer.data)
+# List all drones into the DB and permit
+class drone_view(generics.ListCreateAPIView):
+    #search_fields = ['brand']
+    filter_backends = (DynamicDroneFilter,)
+
+    # https://www.django-rest-framework.org/api-guide/relations/
+    # Refactoring: line bellow is better than queryset = Drone.objects.all()
+    #  No additional database hits required
+    queryset = Drone.objects.all().prefetch_related('supported_cameras')
+    serializer_class = DroneSerializer
 
 
 # Create a new one drone
@@ -103,8 +107,16 @@ def drone_detail(request, pk, format=None):
             return Response(context, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class search_view(generics.ListCreateAPIView):
-    search_fields = ['brand']
-    filter_backends = (DynamicSearchFilter,)
-    queryset = Drone.objects.all()
-    serializer_class = DroneSerializer
+# Area for Camera Model
+
+# List all cameras into the DB
+class camera_view(generics.ListCreateAPIView):
+
+    search_fields = ['model']
+    filter_backends = (DynamicCameraFilter,)
+
+    queryset = Camera.objects.all()
+    serializer_class = CameraSerializer
+
+    # TODO: Implemente in the future
+    #permission_classes = [IsAdminUser]

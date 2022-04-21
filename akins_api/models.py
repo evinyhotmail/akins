@@ -1,6 +1,8 @@
 from pyexpat import model
+from webbrowser import get
 from django.contrib.auth.models import User
 from django.db import models
+from akins_api.functions import get_modelfieldlist
 
 
 # Create your models here.
@@ -28,15 +30,16 @@ class Camera(models.Model):
     model = models.CharField(max_length=20, blank=False, default="")
     brand = models.CharField(max_length=20, blank=False, default="")
     weight = models.PositiveIntegerField(blank=False, default=0)
-    dimensions_folded = models.CharField(
-        max_length=20, blank=False, default="mm")
-    dimensions_unfolded = models.CharField(
-        max_length=20, blank=False, default="")
-    megapíxeles = models.PositiveIntegerField(
-        verbose_name="Megapixel", default=0)
-    video_resolution = models.CharField(max_length=20, blank=False, default="")
+    megapíxeles = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
+
+    ordering = ['brand']
+
+    # def __str__(self):
+    #     # return 'id:%d: model:%s: brand:%s weight:%d' % (self.id, self.model, self.brand, self.weight)
+    #     # get_modelfieldlist is better due to return a list with all fields defined into the model
+    #     return get_modelfieldlist(self)
 
     def __str__(self):
         return self.model
@@ -44,12 +47,11 @@ class Camera(models.Model):
 
 class Drone(models.Model):
     name = models.CharField(max_length=20, blank=False)
-    serial_number = models.CharField(unique=True,  max_length=20, blank=False)
-    #camera = models.ForeignKey(Camera, on_delete=models.SET_NULL, null=True)
-    cameras = models.ManyToManyField(Camera)
     brand = models.CharField(max_length=20, blank=False)
+    serial_number = models.CharField(unique=True,  max_length=20, blank=False)
+    supported_cameras = models.ManyToManyField(Camera)
     created_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name}|Serial{self.serial_number}"
