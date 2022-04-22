@@ -1,49 +1,56 @@
-from akins_api.filter import (DynamicDroneFilter, DynamicCameraFilter)
-from rest_framework import filters, generics
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
+from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.authentication import (
+    SessionAuthentication,
+    BasicAuthentication
+)
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
     permission_classes
 )
-from rest_framework.response import Response
 
-from .serlializers import (DroneSerializer, CameraSerializer)
-from .models import *
-from akins_api import serlializers
+
+from akins_api.models import *
+from akins_api.filter import (DynamicDroneFilter, DynamicCameraFilter)
+from .serializers import (DroneSerializer, CameraSerializer)
+
 # Create your views here.
 
 
 # Show a veri nice overview of how to use the api
 @api_view(['GET'])
 def ApiOverview(request):
-    api_urls = {
-        'All drones & search by fields': '/drone',
-        'Add, Update & Dele': '/drone/pk',
 
-        'All Camera & search by fields': '/camera',
+    context_url = {
+        'all_items': '/drones',
+        'Search by id': '/?id=drone_id',
+        'Search by name': '/?name=drone_name',
+        'Search by brand': '/?brand=drone_brand',
+        'Search by serial number': '/?serial_number=drone_serial_number',
+        'Search by Camera model': '/?cameras__weight=weight',
 
-
-
-        'JSON Web Token ': '/token',
-        'JSON Web Token Refresh': '/token/refresh'
+        'Add a drne': '/create',
+        'Update a drone': '/update/pk',
+        'Delete a drone': '/item/pk/delete'
     }
 
-    return Response(api_urls)
+    return Response(context_url)
 
 
-# List all drones into the DB and permit
-class drone_view(generics.ListCreateAPIView):
-    #search_fields = ['brand']
-    filter_backends = (DynamicDroneFilter,)
+class drone_list(generics.ListAPIView):
 
-    # https://www.django-rest-framework.org/api-guide/relations/
-    # Refactoring: line bellow is better than queryset = Drone.objects.all()
-    #  No additional database hits required
-    queryset = Drone.objects.all().prefetch_related('supported_cameras')
+    # queryset = Drone.objects.all()
+    # Oficial doc: rhttps://www.django-rest-framework.org/api-guide/relations/
+    # Better, No additional database hits required
+    queryset = Drone.objects.prefetch_related('cameras')
     serializer_class = DroneSerializer
+    filter_backends = [DjangoFilterBackend]
+
+    filterset_fields = get_modelfieldlist(Drone, Camera)
+    # filterset_fields = ['id', 'name', 'brand', 'cameras__weight']
 
 
 # Create a new one drone
@@ -67,18 +74,18 @@ def drone_add(request,  format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Used to get, update or delete a drone into the DB
-@api_view(['GET', 'PUT', 'DELETE'])
+# Used to update or delete a drone into the DB
+@api_view(['PUT', 'DELETE'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
-def drone_detail(request, pk, format=None):
+def drone_crud(request, pk, format=None):
     """
     Retrieve, update or delete a drone
     """
     # Defining standard context error message
     context = {
-        'error': '401',
-        'message': 'UNAUTHORIZED USER',
+        'detail': 'UNAUTHORIZED USER',
+
     }
 
     try:
@@ -86,11 +93,7 @@ def drone_detail(request, pk, format=None):
     except Drone.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = DroneSerializer(drone)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
+    if request.method == 'PUT':
         serializer = DroneSerializer(drone, data=request.data)
         if serializer.is_valid() and request.user.profile.is_user_support:
             serializer.save()

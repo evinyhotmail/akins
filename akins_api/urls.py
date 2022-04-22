@@ -5,15 +5,11 @@ from . import views
 
 
 urlpatterns = [
+
     path('', views.ApiOverview, name='home'),
-    path('drone/', views.drone_view.as_view(), name='drone_search'),
-    #     path('drone/add', views.drone_add, name='drone_add'),
-    #     path('drone/<int:pk>', views.drone_detail, name='drone_detail'),
-
+    path('drones/', views.drone_list.as_view(), name='drone_list'),
+    path('drone/<int:pk>', views.drone_crud, name='drone_crud'),
     path('camera/', views.camera_view.as_view(), name='camera_search'),
-
-
-
 
 
 
