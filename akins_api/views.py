@@ -25,16 +25,24 @@ from .serializers import (DroneSerializer, CameraSerializer)
 def ApiOverview(request):
 
     context_url = {
-        'all_items': '/drones',
+        'all Drone items': '/drones',
         'Search by id': '/?id=drone_id',
         'Search by name': '/?name=drone_name',
         'Search by brand': '/?brand=drone_brand',
         'Search by serial number': '/?serial_number=drone_serial_number',
         'Search by Camera model': '/?cameras__weight=weight',
 
-        'Add a drone': '/create',
-        'Update a drone': '/update/pk',
-        'Delete a drone': '/item/pk/delete'
+        'Add a drone [POST]': '/drone/add/',
+        'Update a drone [PUT]': '/drone/pk',
+        'Delete a drone [DELETE]': '/drone/pk/e',
+
+        'all Camera items': '/cameras',
+        'Search by id': '/?id=camera_id',
+        'Search by name': '/?model=camera_models',
+        'Search by brand': '/?brand=camera_brand',
+        'Search by weight': '/?weight=camera_weight',
+        'Search by megapixel': '/?megapixel=camera_megapixel',
+       
     }
 
     return Response(context_url)
