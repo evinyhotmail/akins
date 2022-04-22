@@ -32,7 +32,7 @@ def ApiOverview(request):
         'Search by serial number': '/?serial_number=drone_serial_number',
         'Search by Camera model': '/?cameras__weight=weight',
 
-        'Add a drne': '/create',
+        'Add a drone': '/create',
         'Update a drone': '/update/pk',
         'Delete a drone': '/item/pk/delete'
     }
@@ -113,13 +113,23 @@ def drone_crud(request, pk, format=None):
 # Area for Camera Model
 
 # List all cameras into the DB
-class camera_view(generics.ListCreateAPIView):
+# class camera_view(generics.ListAPIView):
 
-    search_fields = ['model']
-    filter_backends = (DynamicCameraFilter,)
+#     queryset = Camera.objects.all()
+#     serializer_class = CameraSerializer
+
+#     filter_backends = (DjangoFilterBackend)
+
+#     filterset_fields = ['model', 'brand', 'weight', 'megapixel']
+
+#     # TODO: Implemente in the future
+#     #permission_classes = [IsAdminUser]
+
+
+class camera_view(generics.ListAPIView):
 
     queryset = Camera.objects.all()
     serializer_class = CameraSerializer
+    filter_backends = [DjangoFilterBackend]
 
-    # TODO: Implemente in the future
-    #permission_classes = [IsAdminUser]
+    filterset_fields = ['id', 'model', 'brand', 'weight', 'megapixel']
