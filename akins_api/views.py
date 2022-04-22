@@ -66,8 +66,7 @@ def drone_add(request,  format=None):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif not request.user.profile.is_user_support:
             context = {
-                'error': '401',
-                'message': 'UNAUTHORIZED USER',
+                'detail': 'UNAUTHORIZED USER',
             }
             return Response(context, status=status.HTTP_401_UNAUTHORIZED)
 
