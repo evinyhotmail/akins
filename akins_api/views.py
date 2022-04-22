@@ -111,20 +111,8 @@ def drone_crud(request, pk, format=None):
 
 # Area for Camera Model
 
+
 # List all cameras into the DB
-# class camera_view(generics.ListAPIView):
-
-#     queryset = Camera.objects.all()
-#     serializer_class = CameraSerializer
-
-#     filter_backends = (DjangoFilterBackend)
-
-#     filterset_fields = ['model', 'brand', 'weight', 'megapixel']
-
-#     # TODO: Implemente in the future
-#     #permission_classes = [IsAdminUser]
-
-
 class camera_view(generics.ListAPIView):
 
     queryset = Camera.objects.all()
@@ -132,3 +120,5 @@ class camera_view(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
 
     filterset_fields = ['id', 'model', 'brand', 'weight', 'megapixel']
+    # TODO: Implemente in the future
+    #permission_classes = [IsAdminUser]
