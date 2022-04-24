@@ -13,6 +13,7 @@ urlpatterns = [
 
     path('', views.ApiOverview, name='home'),
     path('drones/', views.drone_list.as_view(), name='drone_list'),
+    # FIXME: for future version include, remove it and add the method post in toe drone_crud view
     path('drone/add/', views.drone_add, name='drone_add'),
     path('drone/<int:pk>', views.drone_crud, name='drone_crud'),
 

@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from msilib.schema import Class
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -59,6 +58,7 @@ class drone_list(generics.ListAPIView):
     serializer_class = DroneSerializer
     filter_backends = [DjangoFilterBackend]
 
+    # get_modelfieldlist is a function to get all field of model a return a list of this
     filterset_fields = get_modelfieldlist(Drone, Camera)
     # filterset_fields = ['id', 'name', 'brand', 'cameras__weight']
 
