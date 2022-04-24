@@ -42,7 +42,7 @@ def ApiOverview(request):
         'Search by brand': '/?brand=camera_brand',
         'Search by weight': '/?weight=camera_weight',
         'Search by megapixel': '/?megapixel=camera_megapixel',
-       
+
     }
 
     return Response(context_url)
@@ -81,18 +81,18 @@ def drone_add(request,  format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Used to update or delete a drone into the DB
-@api_view(['PUT', 'DELETE'])
+# Used to get, update or delete a drone into the DB but need user credentials
+@api_view(['GET', 'PUT', 'DELETE'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def drone_crud(request, pk, format=None):
     """
     Retrieve, update or delete a drone
     """
-    # Defining standard context error message
+
+    # Defining standard context error message for UNAUTHORIZED USER
     context = {
         'detail': 'UNAUTHORIZED USER',
-
     }
 
     try:
@@ -100,21 +100,25 @@ def drone_crud(request, pk, format=None):
     except Drone.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'PUT':
-        serializer = DroneSerializer(drone, data=request.data)
-        if serializer.is_valid() and request.user.profile.is_user_support:
-            serializer.save()
-            return Response(serializer.data)
-        elif not request.user.profile.is_user_support:
-            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        serializer = DroneSerializer(drone)
+        return Response(serializer.data)
 
-    elif request.method == 'DELETE':
-        if request.user.profile.is_user_support:
+    # Checking if a user is a support team type
+    if request.user.profile.is_user_support:
+        if request.method == 'PUT':
+            serializer = DroneSerializer(drone, data=request.data)
+            if serializer.is_valid():
+                # serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.method == 'DELETE':
             drone.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+    else:
+        return Response(context, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Area for Camera Model
