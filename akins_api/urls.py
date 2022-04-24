@@ -3,6 +3,11 @@ from rest_framework_simplejwt import views as jwt_views
 
 from . import views
 
+# defining the name of set of view with repective actions.
+camera_list = views.CameraViewSet.as_view({
+    'get': 'list'
+
+})
 
 urlpatterns = [
 
@@ -10,7 +15,9 @@ urlpatterns = [
     path('drones/', views.drone_list.as_view(), name='drone_list'),
     path('drone/add/', views.drone_add, name='drone_add'),
     path('drone/<int:pk>', views.drone_crud, name='drone_crud'),
-    path('cameras/', views.camera_view.as_view(), name='camera_search'),
+
+    # Just to show how we can code lees... :)
+    path('cameras/', camera_list, name='camera_list'),
 
 
 

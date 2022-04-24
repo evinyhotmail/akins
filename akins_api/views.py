@@ -1,3 +1,5 @@
+from rest_framework import viewsets
+from msilib.schema import Class
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,7 +16,7 @@ from rest_framework.decorators import (
 
 
 from akins_api.models import *
-from akins_api.filter import (DynamicDroneFilter, DynamicCameraFilter)
+#from akins_api.filter import (DynamicDroneFilter, DynamicCameraFilter)
 from .serializers import (DroneSerializer, CameraSerializer)
 
 # Create your views here.
@@ -124,13 +126,8 @@ def drone_crud(request, pk, format=None):
 # Area for Camera Model
 
 
-# List all cameras into the DB
-class camera_view(generics.ListAPIView):
-
+# List all cameras into the DB but using ViewSet, less code :)
+class CameraViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Camera.objects.all()
     serializer_class = CameraSerializer
-    filter_backends = [DjangoFilterBackend]
-
     filterset_fields = ['id', 'model', 'brand', 'weight', 'megapixel']
-    # TODO: Implemente in the future
-    #permission_classes = [IsAdminUser]
